@@ -1,6 +1,6 @@
-try: # for pip >= 10
+try:
     from pip._internal.req import parse_requirements
-except ImportError: # for pip <= 9.0.3
+except ImportError:
     from pip.req import parse_requirements
 from os.path import dirname, join
 from setuptools import (
