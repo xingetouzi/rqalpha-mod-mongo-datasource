@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from rqalpha.data.converter import StockBarConverter
 from rqalpha.utils.datetime_func import convert_dt_to_int, convert_int_to_datetime
-
+import pdb
 
 class DataFrameConverter(object):
     @classmethod
@@ -16,7 +16,9 @@ class DataFrameConverter(object):
         if "datetime" in fields:
             dt = df["datetime"]
             df["datetime"] = np.empty(len(df), dtype=np.uint64)
+        #pdb.set_trace()
         result = df[fields].values.ravel().view(dtype=np.dtype(dtypes))
+        #pdb.set_trace()
         if "datetime" in fields:
             result["datetime"] = dt.apply(convert_dt_to_int)
         return result[fields]

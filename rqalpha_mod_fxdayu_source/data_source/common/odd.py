@@ -7,7 +7,7 @@ from rqalpha.interface import AbstractDataSource
 from rqalpha.utils.datetime_func import convert_dt_to_int
 
 from rqalpha_mod_fxdayu_source.utils.converter import DataFrameConverter
-
+import pdb #mine
 RESAMPLE_TAG_MAP = {
     "m": "T",
     "h": "h",
@@ -40,8 +40,10 @@ class OddFrequencyDataSource(AbstractDataSource):
         resample_data["open"] = resample_group["open"].first().dropna()
         resample_data["volume"] = resample_group["volume"].sum().dropna()
         resample_data["datetime"] = resample_group["datetime"].last().dropna()
-        bar_data = resample_data.reset_index(list(range(len(resample_data))), drop=True)
+        bar_data = resample_data.reset_index(drop=True)
+        #pdb.set_trace()
         bar_data = DataFrameConverter.df2np(bar_data)
+        #pdb.set_trace()
         return bar_data
 
     def get_bar(self, instrument, dt, frequency):
@@ -84,6 +86,7 @@ class OddFrequencyDataSource(AbstractDataSource):
             if freq == "m":
                 lower_bar_count = (bar_count + 1) * num
                 bars = self.raw_history_bars(instrument, "1" + freq, end_dt=dt, length=lower_bar_count)
+                
                 if bars is None:
                     return super(OddFrequencyDataSource, self).history_bars(
                         instrument, bar_count, frequency, fields, dt,
@@ -101,6 +104,7 @@ class OddFrequencyDataSource(AbstractDataSource):
                             bars = bars[-bar_count:]
                             # TODO 跳过停牌
             else:
+                
                 return super(OddFrequencyDataSource, self).history_bars(
                     instrument, bar_count, frequency, fields, dt,
                     skip_suspended=skip_suspended, include_now=include_now,
@@ -109,12 +113,15 @@ class OddFrequencyDataSource(AbstractDataSource):
                 # if fields is not None:
                 #     if not isinstance(fields, six.string_types):
                 #         fields = [field for field in fields if field in bar_data]
+        
         if adjust_type == "none" or instrument.type in {"Future", "INDX"}:
             return bars if fields is None else bars[fields]
         if isinstance(fields, str) and fields not in FIELDS_REQUIRE_ADJUSTMENT:
             return bars if fields is None else bars[fields]
-        return adjust_bars(bars, self.get_ex_cum_factor(instrument.order_book_id),
+        data = adjust_bars(bars, self.get_ex_cum_factor(instrument.order_book_id),
                            fields, adjust_type, adjust_orig)
+        #pdb.set_trace()
+        return data
 
     def get_ex_cum_factor(self, order_book_id):
         raise NotImplementedError
